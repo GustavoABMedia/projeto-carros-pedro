@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  VENDEDOR
+  CLIENTE
+}
+
+model Usuario {
+  id        String   @id @default(cuid())
+  nome      String
+  email     String   @unique
+  senha     String
+  role      Role     @default(CLIENTE)
+  pedidos   Pedido[]
+  criadoEm  DateTime @default(now())
+}
+
+model Loja {
+  id        String   @id @default(cuid())
+  nome      String
+  endereco  String
+  email     String
+  carros    Carro[]
+}
+
+model Carro {
+  id             String   @id @default(cuid())
+  modelo         String
+  preco          Float
+  ano            Int
+  quilometragem  Float
+  lojaId         String
+  loja           Loja     @relation(fields: [lojaId], references: [id])
+  pedidos        Pedido[]
+}
+
+model Pedido {
+  id         String   @id @default(cuid())
+  carroId    String
+  usuarioId  String
+  vendedorId String?
+  status     String
+  total      Float
+  criadoEm   DateTime @default(now())
+}
+
+model Comissao {
+  id         String   @id @default(cuid())
+  valor      Float
+  pedidoId   String
+  pedido     Pedido   @relation(fields: [pedidoId], references: [id])
+  vendedorId String
+  lojaId     String
+  pago       Boolean  @default(false)
+  criadoEm   DateTime @default(now())
+}
